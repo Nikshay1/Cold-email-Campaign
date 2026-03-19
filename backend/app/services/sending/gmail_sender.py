@@ -78,7 +78,7 @@ async def send_email_via_gmail(
     unsubscribe_url: Optional[str] = None,
 ) -> dict:
     """Send email via Gmail API. Returns Gmail message metadata."""
-    if settings.mock_mode or not inbox.gmail_access_token:
+    if not inbox.gmail_access_token:
         logger.info(f"[MOCK] Would send from {inbox.email} to {to_email}: {subject}")
         return {
             "id": f"mock_msg_{to_email}_{datetime.utcnow().timestamp()}",

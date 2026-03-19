@@ -1,0 +1,200 @@
+cortexa_api  | 2026-03-19 14:24:24,900 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:24,912 INFO sqlalchemy.engine.Engine SELECT app_config.id, app_config.groq_api_key, app_config.groq_model, app_config.updated_at 
+cortexa_api  | FROM app_config 
+cortexa_api  |  LIMIT $1::INTEGER
+cortexa_api  | 2026-03-19 14:24:24,912 INFO sqlalchemy.engine.Engine [generated in 0.00023s] (1,)
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/settings/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:24,918 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:24:24,923 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:24,923 INFO sqlalchemy.engine.Engine SELECT app_config.id, app_config.groq_api_key, app_config.groq_model, app_config.updated_at 
+cortexa_api  | FROM app_config 
+cortexa_api  |  LIMIT $1::INTEGER
+cortexa_api  | 2026-03-19 14:24:24,923 INFO sqlalchemy.engine.Engine [cached since 0.01082s ago] (1,)
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/settings/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:24,925 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/leads?limit=100 HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:48504 - "GET /api/leads?limit=100 HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:24:29,474 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:29,476 INFO sqlalchemy.engine.Engine SELECT leads.id, leads.email, leads.first_name, leads.last_name, leads.title, leads.linkedin_url, leads.company_name, leads.company_domain, leads.company_industry, leads.company_size, leads.company_funding_stage, leads.company_website_summary, leads.company_recent_news, leads.tech_stack, leads.pain_points, leads.linkedin_recent_post, leads.linkedin_post_topic, leads.icp_score, leads.tier, leads.status, leads.email_verified, leads.is_suppressed, leads.suppression_reason, leads.created_at, leads.updated_at 
+cortexa_api  | FROM leads 
+cortexa_api  | WHERE leads.is_suppressed = false ORDER BY leads.icp_score DESC 
+cortexa_api  |  LIMIT $1::INTEGER OFFSET $2::INTEGER
+cortexa_api  | 2026-03-19 14:24:29,476 INFO sqlalchemy.engine.Engine [generated in 0.00020s] (100, 0)
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/leads/?limit=100 HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:29,500 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:24:29,514 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:29,515 INFO sqlalchemy.engine.Engine SELECT leads.id, leads.email, leads.first_name, leads.last_name, leads.title, leads.linkedin_url, leads.company_name, leads.company_domain, leads.company_industry, leads.company_size, leads.company_funding_stage, leads.company_website_summary, leads.company_recent_news, leads.tech_stack, leads.pain_points, leads.linkedin_recent_post, leads.linkedin_post_topic, leads.icp_score, leads.tier, leads.status, leads.email_verified, leads.is_suppressed, leads.suppression_reason, leads.created_at, leads.updated_at 
+cortexa_api  | FROM leads 
+cortexa_api  | WHERE leads.is_suppressed = false ORDER BY leads.icp_score DESC 
+cortexa_api  |  LIMIT $1::INTEGER OFFSET $2::INTEGER
+cortexa_api  | 2026-03-19 14:24:29,515 INFO sqlalchemy.engine.Engine [cached since 0.03855s ago] (100, 0)
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/leads/?limit=100 HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:29,517 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:48504 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:24:32,890 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:32,891 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:24:32,891 INFO sqlalchemy.engine.Engine [generated in 0.00015s] ()
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:32,900 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:24:32,907 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:32,907 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:24:32,907 INFO sqlalchemy.engine.Engine [cached since 0.01552s ago] ()
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:32,908 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:48498 - "OPTIONS /api/campaigns/926af5eb-0751-4c02-8f18-932b43be249a/pause HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:34,833 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:34,833 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns 
+cortexa_api  | WHERE campaigns.id = $1::VARCHAR
+cortexa_api  | 2026-03-19 14:24:34,833 INFO sqlalchemy.engine.Engine [generated in 0.00014s] ('926af5eb-0751-4c02-8f18-932b43be249a',)
+cortexa_api  | INFO:     172.18.0.1:48498 - "PATCH /api/campaigns/926af5eb-0751-4c02-8f18-932b43be249a/pause HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:34,837 INFO sqlalchemy.engine.Engine UPDATE campaigns SET status=$1::campaignstatus, updated_at=now() WHERE campaigns.id = $2::VARCHAR
+cortexa_api  | 2026-03-19 14:24:34,837 INFO sqlalchemy.engine.Engine [generated in 0.00016s] ('PAUSED', '926af5eb-0751-4c02-8f18-932b43be249a')
+cortexa_api  | 2026-03-19 14:24:34,842 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:24:34,856 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:24:34,856 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:24:34,856 INFO sqlalchemy.engine.Engine [cached since 1.965s ago] ()
+cortexa_api  | INFO:     172.18.0.1:48498 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:24:34,857 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:36096 - "OPTIONS /api/campaigns HTTP/1.1" 200 OK
+cortexa_api  | INFO:     172.18.0.1:36096 - "POST /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:36096 - "OPTIONS /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:22,371 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:22,375 INFO sqlalchemy.engine.Engine INSERT INTO campaigns (id, name, description, status, sequence_type, is_vc_campaign, value_proposition, pain_point, custom_prompt, total_leads, sent_count, open_count, reply_count, bounce_count) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::campaignstatus, $5::VARCHAR, $6::BOOLEAN, $7::VARCHAR, $8::VARCHAR, $9::VARCHAR, $10::INTEGER, $11::INTEGER, $12::INTEGER, $13::INTEGER, $14::INTEGER) RETURNING campaigns.created_at, campaigns.updated_at
+cortexa_api  | 2026-03-19 14:26:22,375 INFO sqlalchemy.engine.Engine [generated in 0.00052s] ('18955978-373c-403a-b2ac-64739201cd4d', 'test ', '', 'DRAFT', 'tier1', True, 'Cortexa Labs builds AI-powered assistive communication technology for people with ALS and MND ??? our Intent Engine predicts and generates full sentences with zero physical effort from the user.', 'People with ALS and MND progressively lose the ability to speak and type, yet existing AAC tools still require physical input ??? taps, eye-tracking, switches ??? that become unusable as the disease advances. We eliminate that dependency entirely.', "Always mention that Cortexa's Intent Engine requires zero physical input ??? no taps, no eye-tracking, no switches. Emphasize that we are pre-seed and  ... (137 characters truncated) ...  AI and assistive tech from DTU. Keep tone direct, founder-led, and mission-driven ??? never corporate. Always end with a soft ask for a 20-minute call", 0, 0, 0, 0, 0)
+cortexa_api  | INFO:     172.18.0.1:36096 - "POST /api/campaigns/ HTTP/1.1" 201 Created
+cortexa_api  | 2026-03-19 14:26:22,379 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:26:22,396 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:22,396 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:26:22,396 INFO sqlalchemy.engine.Engine [cached since 109.5s ago] ()
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:22,398 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/leads?limit=100 HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:46104 - "GET /api/leads?limit=100 HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:26:26,677 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:26,677 INFO sqlalchemy.engine.Engine SELECT leads.id, leads.email, leads.first_name, leads.last_name, leads.title, leads.linkedin_url, leads.company_name, leads.company_domain, leads.company_industry, leads.company_size, leads.company_funding_stage, leads.company_website_summary, leads.company_recent_news, leads.tech_stack, leads.pain_points, leads.linkedin_recent_post, leads.linkedin_post_topic, leads.icp_score, leads.tier, leads.status, leads.email_verified, leads.is_suppressed, leads.suppression_reason, leads.created_at, leads.updated_at 
+cortexa_api  | FROM leads 
+cortexa_api  | WHERE leads.is_suppressed = false ORDER BY leads.icp_score DESC 
+cortexa_api  |  LIMIT $1::INTEGER OFFSET $2::INTEGER
+cortexa_api  | 2026-03-19 14:26:26,677 INFO sqlalchemy.engine.Engine [cached since 117.2s ago] (100, 0)
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/leads/?limit=100 HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:26,681 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:26,693 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:26,693 INFO sqlalchemy.engine.Engine SELECT leads.id, leads.email, leads.first_name, leads.last_name, leads.title, leads.linkedin_url, leads.company_name, leads.company_domain, leads.company_industry, leads.company_size, leads.company_funding_stage, leads.company_website_summary, leads.company_recent_news, leads.tech_stack, leads.pain_points, leads.linkedin_recent_post, leads.linkedin_post_topic, leads.icp_score, leads.tier, leads.status, leads.email_verified, leads.is_suppressed, leads.suppression_reason, leads.created_at, leads.updated_at 
+cortexa_api  | FROM leads 
+cortexa_api  | WHERE leads.is_suppressed = false ORDER BY leads.icp_score DESC 
+cortexa_api  |  LIMIT $1::INTEGER OFFSET $2::INTEGER
+cortexa_api  | 2026-03-19 14:26:26,693 INFO sqlalchemy.engine.Engine [cached since 117.2s ago] (100, 0)
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/leads/?limit=100 HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:26,694 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:29,582 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:29,584 INFO sqlalchemy.engine.Engine SELECT inboxes.id, inboxes.email, inboxes.display_name, inboxes.domain, inboxes.daily_limit, inboxes.health, inboxes.gmail_access_token, inboxes.gmail_refresh_token, inboxes.gmail_token_expiry, inboxes.is_warmup_active, inboxes.warmup_started_at, inboxes.created_at, inboxes.updated_at 
+cortexa_api  | FROM inboxes ORDER BY inboxes.domain
+cortexa_api  | 2026-03-19 14:26:29,584 INFO sqlalchemy.engine.Engine [generated in 0.00016s] ()
+cortexa_api  | 2026-03-19 14:26:29,605 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:29,607 INFO sqlalchemy.engine.Engine SELECT count(email_records.id) AS total, sum(CASE WHEN (email_records.status IN ($9::emailstatus, $10::emailstatus)) THEN $1::INTEGER ELSE $2::INTEGER END) AS delivered, sum(CASE WHEN (email_records.status = $3::emailstatus) THEN $4::INTEGER ELSE $5::INTEGER END) AS opened, sum(CASE WHEN (email_records.status = $6::emailstatus) THEN $7::INTEGER ELSE $8::INTEGER END) AS bounced 
+cortexa_api  | FROM email_records
+cortexa_api  | 2026-03-19 14:26:29,607 INFO sqlalchemy.engine.Engine [generated in 0.00026s] (1, 0, 'OPENED', 1, 0, 'BOUNCED', 1, 0, 'SENT', 'OPENED')
+cortexa_api  | INFO:     172.18.0.1:46104 - "GET /api/analytics/domains HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:29,608 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:29,615 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:29,615 INFO sqlalchemy.engine.Engine SELECT inboxes.id, inboxes.email, inboxes.display_name, inboxes.domain, inboxes.daily_limit, inboxes.health, inboxes.gmail_access_token, inboxes.gmail_refresh_token, inboxes.gmail_token_expiry, inboxes.is_warmup_active, inboxes.warmup_started_at, inboxes.created_at, inboxes.updated_at 
+cortexa_api  | FROM inboxes ORDER BY inboxes.domain
+cortexa_api  | 2026-03-19 14:26:29,615 INFO sqlalchemy.engine.Engine [cached since 0.03168s ago] ()
+cortexa_api  | INFO:     172.18.0.1:46104 - "GET /api/analytics/domains HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:29,617 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:29,637 INFO sqlalchemy.engine.Engine SELECT count(replies.id) AS count_1 
+cortexa_api  | FROM replies
+cortexa_api  | 2026-03-19 14:26:29,637 INFO sqlalchemy.engine.Engine [generated in 0.00017s] ()
+cortexa_api  | 2026-03-19 14:26:29,642 INFO sqlalchemy.engine.Engine SELECT count(replies.id) AS count_1 
+cortexa_api  | FROM replies 
+cortexa_api  | WHERE replies.classification = $1::replyclassification
+cortexa_api  | 2026-03-19 14:26:29,642 INFO sqlalchemy.engine.Engine [generated in 0.00038s] ('INTERESTED',)
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/analytics/funnel HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:29,649 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:29,656 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:29,657 INFO sqlalchemy.engine.Engine SELECT count(email_records.id) AS total, sum(CASE WHEN (email_records.status IN ($9::emailstatus, $10::emailstatus)) THEN $1::INTEGER ELSE $2::INTEGER END) AS delivered, sum(CASE WHEN (email_records.status = $3::emailstatus) THEN $4::INTEGER ELSE $5::INTEGER END) AS opened, sum(CASE WHEN (email_records.status = $6::emailstatus) THEN $7::INTEGER ELSE $8::INTEGER END) AS bounced 
+cortexa_api  | FROM email_records
+cortexa_api  | 2026-03-19 14:26:29,657 INFO sqlalchemy.engine.Engine [cached since 0.05031s ago] (1, 0, 'OPENED', 1, 0, 'BOUNCED', 1, 0, 'SENT', 'OPENED')
+cortexa_api  | 2026-03-19 14:26:29,666 INFO sqlalchemy.engine.Engine SELECT count(replies.id) AS count_1 
+cortexa_api  | FROM replies
+cortexa_api  | 2026-03-19 14:26:29,666 INFO sqlalchemy.engine.Engine [cached since 0.02854s ago] ()
+cortexa_api  | 2026-03-19 14:26:29,667 INFO sqlalchemy.engine.Engine SELECT count(replies.id) AS count_1 
+cortexa_api  | FROM replies 
+cortexa_api  | WHERE replies.classification = $1::replyclassification
+cortexa_api  | 2026-03-19 14:26:29,668 INFO sqlalchemy.engine.Engine [cached since 0.02573s ago] ('INTERESTED',)
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/analytics/funnel HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:29,677 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:26:30,275 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:30,276 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:26:30,276 INFO sqlalchemy.engine.Engine [cached since 117.4s ago] ()
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:30,283 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:30,290 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:30,290 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:26:30,290 INFO sqlalchemy.engine.Engine [cached since 117.4s ago] ()
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:30,292 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:26:34,428 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:34,429 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns 
+cortexa_api  | WHERE campaigns.id = $1::VARCHAR
+cortexa_api  | 2026-03-19 14:26:34,429 INFO sqlalchemy.engine.Engine [cached since 119.6s ago] ('18955978-373c-403a-b2ac-64739201cd4d',)
+cortexa_api  | 2026-03-19 14:26:34,432 INFO sqlalchemy.engine.Engine SELECT leads.id, leads.email, leads.first_name, leads.last_name, leads.title, leads.linkedin_url, leads.company_name, leads.company_domain, leads.company_industry, leads.company_size, leads.company_funding_stage, leads.company_website_summary, leads.company_recent_news, leads.tech_stack, leads.pain_points, leads.linkedin_recent_post, leads.linkedin_post_topic, leads.icp_score, leads.tier, leads.status, leads.email_verified, leads.is_suppressed, leads.suppression_reason, leads.created_at, leads.updated_at 
+cortexa_api  | FROM leads 
+cortexa_api  | WHERE leads.is_suppressed = false AND leads.status = $1::leadstatus ORDER BY leads.icp_score DESC
+cortexa_api  | 2026-03-19 14:26:34,432 INFO sqlalchemy.engine.Engine [generated in 0.00019s] ('NEW',)
+cortexa_api  | 2026-03-19 14:26:34,443 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:34,443 INFO sqlalchemy.engine.Engine SELECT app_config.id, app_config.groq_api_key, app_config.groq_model, app_config.updated_at 
+cortexa_api  | FROM app_config 
+cortexa_api  |  LIMIT $1::INTEGER
+cortexa_api  | 2026-03-19 14:26:34,443 INFO sqlalchemy.engine.Engine [cached since 129.5s ago] (1,)
+cortexa_api  | 2026-03-19 14:26:34,444 INFO sqlalchemy.engine.Engine ROLLBACK
+cortexa_api  | 2026-03-19 14:26:35,549 INFO sqlalchemy.engine.Engine UPDATE campaigns SET status=$1::campaignstatus, total_leads=$2::INTEGER, updated_at=now() WHERE campaigns.id = $3::VARCHAR
+cortexa_api  | 2026-03-19 14:26:35,549 INFO sqlalchemy.engine.Engine [generated in 0.00025s] ('ACTIVE', 1, '18955978-373c-403a-b2ac-64739201cd4d')
+cortexa_api  | 2026-03-19 14:26:35,553 INFO sqlalchemy.engine.Engine INSERT INTO email_records (id, lead_id, campaign_id, inbox_id, subject, body, personalization_score, sequence_step, status, gmail_message_id, gmail_thread_id, tracking_id, opened_at, clicked_at, bounced_at, bounce_type, scheduled_at, sent_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::FLOAT, $8::INTEGER, $9::emailstatus, $10::VARCHAR, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITHOUT TIME ZONE, $14::TIMESTAMP WITHOUT TIME ZONE, $15::TIMESTAMP WITHOUT TIME ZONE, $16::VARCHAR, $17::TIMESTAMP WITHOUT TIME ZONE, $18::TIMESTAMP WITHOUT TIME ZONE) RETURNING email_records.created_at
+cortexa_api  | 2026-03-19 14:26:35,553 INFO sqlalchemy.engine.Engine [generated in 0.00026s] ('9bf939cf-295c-4124-931d-b8e2b3cc7fda', '0855cb0b-6358-4201-be22-471b4fd131c8', '18955978-373c-403a-b2ac-64739201cd4d', None, 'Simplifying life for patients', 'Nikshay Yadav leads neurobridge as its CEO. \nYour work with ALS and MND patients is crucial. \nIs simplifying communication for them worth a quick chat?', 8.5, 1, 'QUEUED', None, None, 'f8def07b-a966-43f9-8a9e-4041d41f8b47', None, None, None, None, datetime.datetime(2026, 3, 19, 14, 26, 45, 546890), None)
+cortexa_api  | 2026-03-19 14:26:35,568 INFO sqlalchemy.engine.Engine INSERT INTO email_records (id, lead_id, campaign_id, inbox_id, subject, body, personalization_score, sequence_step, status, gmail_message_id, gmail_thread_id, tracking_id, opened_at, clicked_at, bounced_at, bounce_type, scheduled_at, sent_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::FLOAT, $8::INTEGER, $9::emailstatus, $10::VARCHAR, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITHOUT TIME ZONE, $14::TIMESTAMP WITHOUT TIME ZONE, $15::TIMESTAMP WITHOUT TIME ZONE, $16::VARCHAR, $17::TIMESTAMP WITHOUT TIME ZONE, $18::TIMESTAMP WITHOUT TIME ZONE) RETURNING email_records.created_at
+cortexa_api  | 2026-03-19 14:26:35,568 INFO sqlalchemy.engine.Engine [cached since 0.01556s ago] ('914e1a1a-94b8-46a5-9659-04162732d809', '0855cb0b-6358-4201-be22-471b4fd131c8', '18955978-373c-403a-b2ac-64739201cd4d', None, 'Re: Simplifying life for patients', 'Nikshay Yadav leads neurobridge as its CEO. \nYour work with ALS and MND patients is crucial. \nIs simplifying communication for them worth a quick chat?', 8.5, 2, 'QUEUED', None, None, 'b904f455-571c-4268-88d2-d15f276c31d0', None, None, None, None, datetime.datetime(2026, 3, 23, 8, 8, 43), None)
+cortexa_api  | 2026-03-19 14:26:35,570 INFO sqlalchemy.engine.Engine INSERT INTO email_records (id, lead_id, campaign_id, inbox_id, subject, body, personalization_score, sequence_step, status, gmail_message_id, gmail_thread_id, tracking_id, opened_at, clicked_at, bounced_at, bounce_type, scheduled_at, sent_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::FLOAT, $8::INTEGER, $9::emailstatus, $10::VARCHAR, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITHOUT TIME ZONE, $14::TIMESTAMP WITHOUT TIME ZONE, $15::TIMESTAMP WITHOUT TIME ZONE, $16::VARCHAR, $17::TIMESTAMP WITHOUT TIME ZONE, $18::TIMESTAMP WITHOUT TIME ZONE) RETURNING email_records.created_at
+cortexa_api  | 2026-03-19 14:26:35,570 INFO sqlalchemy.engine.Engine [cached since 0.01782s ago] ('a97e4813-aaf1-4abc-aa67-b1f2c948acf5', '0855cb0b-6358-4201-be22-471b4fd131c8', '18955978-373c-403a-b2ac-64739201cd4d', None, 'Re: Simplifying life for patients', 'Nikshay Yadav leads neurobridge as its CEO. \nYour work with ALS and MND patients is crucial. \nIs simplifying communication for them worth a quick chat?', 8.5, 3, 'QUEUED', None, None, '5b409888-2299-4589-b790-4f6abb652f03', None, None, None, None, datetime.datetime(2026, 3, 27, 13, 52, 7), None)
+cortexa_api  | 2026-03-19 14:26:35,572 INFO sqlalchemy.engine.Engine INSERT INTO email_records (id, lead_id, campaign_id, inbox_id, subject, body, personalization_score, sequence_step, status, gmail_message_id, gmail_thread_id, tracking_id, opened_at, clicked_at, bounced_at, bounce_type, scheduled_at, sent_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::FLOAT, $8::INTEGER, $9::emailstatus, $10::VARCHAR, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITHOUT TIME ZONE, $14::TIMESTAMP WITHOUT TIME ZONE, $15::TIMESTAMP WITHOUT TIME ZONE, $16::VARCHAR, $17::TIMESTAMP WITHOUT TIME ZONE, $18::TIMESTAMP WITHOUT TIME ZONE) RETURNING email_records.created_at
+cortexa_api  | 2026-03-19 14:26:35,572 INFO sqlalchemy.engine.Engine [cached since 0.01954s ago] ('6d598b1e-d0ef-4ed2-bd31-47123d4cd143', '0855cb0b-6358-4201-be22-471b4fd131c8', '18955978-373c-403a-b2ac-64739201cd4d', None, 'Re: Simplifying life for patients', 'Nikshay Yadav leads neurobridge as its CEO. \nYour work with ALS and MND patients is crucial. \nIs simplifying communication for them worth a quick chat?', 8.5, 4, 'QUEUED', None, None, '5ab8e500-ccb1-47f3-9a69-8928bfe91d4f', None, None, None, None, datetime.datetime(2026, 4, 3, 9, 16, 14), None)
+cortexa_api  | 2026-03-19 14:26:35,574 INFO sqlalchemy.engine.Engine INSERT INTO email_records (id, lead_id, campaign_id, inbox_id, subject, body, personalization_score, sequence_step, status, gmail_message_id, gmail_thread_id, tracking_id, opened_at, clicked_at, bounced_at, bounce_type, scheduled_at, sent_at) VALUES ($1::VARCHAR, $2::VARCHAR, $3::VARCHAR, $4::VARCHAR, $5::VARCHAR, $6::VARCHAR, $7::FLOAT, $8::INTEGER, $9::emailstatus, $10::VARCHAR, $11::VARCHAR, $12::VARCHAR, $13::TIMESTAMP WITHOUT TIME ZONE, $14::TIMESTAMP WITHOUT TIME ZONE, $15::TIMESTAMP WITHOUT TIME ZONE, $16::VARCHAR, $17::TIMESTAMP WITHOUT TIME ZONE, $18::TIMESTAMP WITHOUT TIME ZONE) RETURNING email_records.created_at
+cortexa_api  | 2026-03-19 14:26:35,574 INFO sqlalchemy.engine.Engine [cached since 0.02161s ago] ('04d39b5f-badd-4b31-bfd2-6ef922016345', '0855cb0b-6358-4201-be22-471b4fd131c8', '18955978-373c-403a-b2ac-64739201cd4d', None, 'Re: Simplifying life for patients', 'Nikshay Yadav leads neurobridge as its CEO. \nYour work with ALS and MND patients is crucial. \nIs simplifying communication for them worth a quick chat?', 8.5, 5, 'QUEUED', None, None, '3139c1d2-7567-4c56-b0df-065bfcdee76b', None, None, None, None, datetime.datetime(2026, 4, 10, 15, 26, 48), None)
+cortexa_api  | 2026-03-19 14:26:35,575 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:36096 - "POST /api/campaigns/18955978-373c-403a-b2ac-64739201cd4d/launch HTTP/1.1" 200 OK
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:26:35,594 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:26:35,594 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:26:35,594 INFO sqlalchemy.engine.Engine [cached since 122.7s ago] ()
+cortexa_api  | INFO:     172.18.0.1:36096 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:26:35,595 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:39714 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | INFO:     172.18.0.1:39728 - "GET /api/campaigns HTTP/1.1" 307 Temporary Redirect
+cortexa_api  | 2026-03-19 14:28:18,599 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:28:18,599 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:28:18,599 INFO sqlalchemy.engine.Engine [cached since 225.7s ago] ()
+cortexa_api  | INFO:     172.18.0.1:39714 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:28:18,601 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | 2026-03-19 14:28:18,609 INFO sqlalchemy.engine.Engine BEGIN (implicit)
+cortexa_api  | 2026-03-19 14:28:18,610 INFO sqlalchemy.engine.Engine SELECT campaigns.id, campaigns.name, campaigns.description, campaigns.status, campaigns.sequence_type, campaigns.is_vc_campaign, campaigns.sending_domains, campaigns.value_proposition, campaigns.pain_point, campaigns.custom_prompt, campaigns.total_leads, campaigns.sent_count, campaigns.open_count, campaigns.reply_count, campaigns.bounce_count, campaigns.created_at, campaigns.updated_at 
+cortexa_api  | FROM campaigns ORDER BY campaigns.created_at DESC
+cortexa_api  | 2026-03-19 14:28:18,610 INFO sqlalchemy.engine.Engine [cached since 225.7s ago] ()
+cortexa_api  | INFO:     172.18.0.1:39714 - "GET /api/campaigns/ HTTP/1.1" 200 OK
+cortexa_api  | 2026-03-19 14:28:18,611 INFO sqlalchemy.engine.Engine COMMIT
+cortexa_api  | INFO:     172.18.0.1:34094 - "GET / HTTP/1.1" 404 Not Found
+cortexa_api  | INFO:     172.18.0.1:34100 - "GET /favicon.ico HTTP/1.1" 404 Not Found

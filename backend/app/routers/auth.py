@@ -1,12 +1,15 @@
 """Google OAuth2 flow for Gmail inbox authorization."""
 
+import urllib.parse
+from datetime import datetime, timedelta
+import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 from app.database import get_db
-from app.models import Inbox
+from app.models import Inbox, InboxHealth
 from app.config import get_settings
 
 settings = get_settings()
@@ -25,66 +28,65 @@ async def google_authorize(inbox_id: str, db: AsyncSession = Depends(get_db)):
     if not settings.google_client_id:
         raise HTTPException(status_code=400, detail="Google OAuth not configured")
 
-    from google_auth_oauthlib.flow import Flow
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": settings.google_client_id,
-                "client_secret": settings.google_client_secret,
-                "redirect_uris": [settings.google_redirect_uri],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }
-        },
-        scopes=SCOPES,
-    )
-    flow.redirect_uri = settings.google_redirect_uri
     result = await db.execute(select(Inbox).where(Inbox.id == inbox_id))
     inbox = result.scalar_one_or_none()
     
-    auth_url, _ = flow.authorization_url(
-        access_type="offline",
-        include_granted_scopes="true",
-        state=inbox_id,
-        prompt="consent",
-        login_hint=inbox.email if inbox else None
+    # We craft the authorization URL manually. This bypasses google_auth_oauthlib's 
+    # forced PKCE mechanics which require persistent server-side session storage.
+    auth_url = (
+        "https://accounts.google.com/o/oauth2/v2/auth"
+        f"?client_id={settings.google_client_id}"
+        f"&redirect_uri={urllib.parse.quote(settings.google_redirect_uri)}"
+        "&response_type=code"
+        f"&scope={urllib.parse.quote(' '.join(SCOPES))}"
+        "&access_type=offline"
+        "&prompt=consent"
+        f"&state={inbox_id}"
     )
+
+    if inbox:
+        auth_url += f"&login_hint={urllib.parse.quote(inbox.email)}"
+
     return RedirectResponse(url=auth_url)
 
 
 @router.get("/google/callback")
 async def google_callback(code: str, state: str, db: AsyncSession = Depends(get_db)):
     """Handle OAuth callback and save tokens to inbox."""
-    from google_auth_oauthlib.flow import Flow
-    from datetime import datetime
-
-    flow = Flow.from_client_config(
-        {
-            "web": {
-                "client_id": settings.google_client_id,
-                "client_secret": settings.google_client_secret,
-                "redirect_uris": [settings.google_redirect_uri],
-                "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-                "token_uri": "https://oauth2.googleapis.com/token",
-            }
-        },
-        scopes=SCOPES,
-    )
-    flow.redirect_uri = settings.google_redirect_uri
-    flow.fetch_token(code=code)
-    creds = flow.credentials
-
     inbox_id = state
     result = await db.execute(select(Inbox).where(Inbox.id == inbox_id))
     inbox = result.scalar_one_or_none()
+    
     if not inbox:
         raise HTTPException(status_code=404, detail="Inbox not found")
 
-    inbox.gmail_access_token = creds.token
-    inbox.gmail_refresh_token = creds.refresh_token
-    inbox.gmail_token_expiry = creds.expiry
-    from app.models import InboxHealth
+    # Exchange the code for tokens securely
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "client_id": settings.google_client_id,
+                "client_secret": settings.google_client_secret,
+                "code": code,
+                "grant_type": "authorization_code",
+                "redirect_uri": settings.google_redirect_uri,
+            }
+        )
+    
+    if resp.status_code != 200:
+        raise HTTPException(status_code=400, detail=f"Google OAuth Failed. {resp.text}")
+
+    data = resp.json()
+    inbox.gmail_access_token = data.get("access_token")
+    
+    # Google only returns refresh_token on the first authorization or if prompt=consent is used.
+    if data.get("refresh_token"):
+        inbox.gmail_refresh_token = data.get("refresh_token")
+        
+    expires_in = data.get("expires_in", 3599)
+    inbox.gmail_token_expiry = datetime.utcnow() + timedelta(seconds=expires_in)
+    
     inbox.health = InboxHealth.GOOD
     await db.commit()
 
-    return {"message": f"Gmail authorized successfully for {inbox.email}"}
+    return RedirectResponse(url="http://localhost:3000/inboxes?success=1")

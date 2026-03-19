@@ -121,9 +121,12 @@ class Campaign(Base):
 
     # Sending config
     sending_domains: Mapped[Optional[list]] = mapped_column(JSON)  # list of domain strings
-    value_proposition: Mapped[Optional[str]] = mapped_column(Text)
-    pain_point: Mapped[Optional[str]] = mapped_column(Text)
-
+    
+    # Template config
+    subject: Mapped[str] = mapped_column(String(200))
+    body_template: Mapped[str] = mapped_column(Text)
+    selected_inboxes: Mapped[Optional[list]] = mapped_column(JSON) # list of Inbox IDs to rotate between
+    
     total_leads: Mapped[int] = mapped_column(Integer, default=0)
     sent_count: Mapped[int] = mapped_column(Integer, default=0)
     open_count: Mapped[int] = mapped_column(Integer, default=0)
@@ -168,13 +171,12 @@ class EmailRecord(Base):
     campaign_id: Mapped[str] = mapped_column(String(36), ForeignKey("campaigns.id"), nullable=False)
     inbox_id: Mapped[Optional[str]] = mapped_column(String(36), ForeignKey("inboxes.id"))
 
-    subject: Mapped[str] = mapped_column(String(500), nullable=False)
-    body: Mapped[str] = mapped_column(Text, nullable=False)
-    personalization_score: Mapped[Optional[float]] = mapped_column(Float)
+    subject: Mapped[str] = mapped_column(String(500))
+    body: Mapped[str] = mapped_column(Text)
     sequence_step: Mapped[int] = mapped_column(Integer, default=1)
-    status: Mapped[EmailStatus] = mapped_column(Enum(EmailStatus), default=EmailStatus.QUEUED)
-
-    # Gmail threading
+    status: Mapped[EmailStatus] = mapped_column(
+        Enum(EmailStatus), default=EmailStatus.QUEUED
+    ) # Gmail threading
     gmail_message_id: Mapped[Optional[str]] = mapped_column(String(200))
     gmail_thread_id: Mapped[Optional[str]] = mapped_column(String(200))
 

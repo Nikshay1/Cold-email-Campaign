@@ -10,9 +10,7 @@ from app.config import get_settings
 from app.database import AsyncSessionLocal, get_redis
 from app.models import EmailRecord, EmailStatus, Lead, Inbox, Campaign
 from app.services.sending.gmail_sender import send_email_via_gmail
-from app.services.sending.inbox_rotator import (
-    get_next_available_inbox, increment_send_count, NoInboxAvailableError
-)
+from app.services.sending.inbox_rotator import increment_send_count
 
 settings = get_settings()
 logger = logging.getLogger(__name__)
@@ -48,13 +46,15 @@ async def send_email_task(ctx: dict, email_record_id: str):
 
             redis: aioredis.Redis = await get_redis()
 
-            # Get next available inbox
-            try:
-                inbox = await get_next_available_inbox(db, redis)
-            except NoInboxAvailableError as e:
-                logger.warning(f"No inbox available for {email_record_id}: {e}")
-                # Re-queue for later — arq will retry
-                raise
+            # Get the exact inbox assigned via Round-Robin
+            inbox_result = await db.execute(select(Inbox).where(Inbox.id == record.inbox_id))
+            inbox = inbox_result.scalar_one_or_none()
+            
+            if not inbox:
+                logger.error(f"Inbox {record.inbox_id} missing. Cannot send.")
+                record.status = EmailStatus.FAILED
+                await db.commit()
+                return
 
             # Build URLs
             tracking_url = f"{settings.unsubscribe_base_url.replace('/unsubscribe', '')}/track/open/{record.tracking_id}"
@@ -77,14 +77,22 @@ async def send_email_task(ctx: dict, email_record_id: str):
             record.gmail_thread_id = gmail_result.get("threadId")
             record.sent_at = datetime.utcnow()
 
+            # Update campaign metrics
+            campaign_result = await db.execute(select(Campaign).where(Campaign.id == record.campaign_id))
+            campaign = campaign_result.scalar_one_or_none()
+            if campaign:
+                campaign.sent_count += 1
+                
+            # Update lead status if first email
+            if record.sequence_step == 1:
+                lead.status = "contacted"
+
             # Increment rate limiter
             await increment_send_count(inbox.email, redis)
 
             await db.commit()
             logger.info(f"✅ Sent email {email_record_id} to {lead.email}")
 
-        except NoInboxAvailableError:
-            raise  # Let arq retry
         except Exception as e:
             logger.error(f"Failed to send {email_record_id}: {e}")
             async with AsyncSessionLocal() as db2:

@@ -28,6 +28,9 @@ def get_randomized_send_time(
     - With 1–8 minute jitter between sends
     - Always in the future relative to `base`
     """
+    if str(settings.environment).lower() == "development" and jitter_add_seconds <= 3600:
+        # In development, send the first email immediately (within 10s) for testing
+        return datetime.utcnow() + timedelta(seconds=10)
     base = base or datetime.utcnow()
     tz_name = TIMEZONE_BY_COUNTRY.get(prospect_country, "Asia/Kolkata")
     tz = pytz.timezone(tz_name)

@@ -1,182 +1,108 @@
 # Cortexa Labs — Cold Email Automation Engine
 
-> **AI-powered cold email system** built for Cortexa Labs to automate outreach to Indian VCs while maintaining world-class deliverability and human-first reply handling.
+> **AI-powered cold email system** built for Cortexa Labs to automate outreach to VCs and prospects while maintaining world-class deliverability and human-first reply handling.
 
 ---
 
 ## What This Does
 
-- **Imports leads** from CSV (VC list, Apollo export, etc.)
-- **Scores & tiers** every lead by ICP fit (funding stage, seniority, company size)
-- **Generates personalized emails** using Groq (Llama-3.3-70B) — unique opening lines, 50–80 word bodies, 3 subject variants
-- **Sends gradually** across multiple Gmail inboxes with rotation, rate limits, and human send-time jitter
-- **Detects replies** every 5 minutes via Gmail API
-- **Notifies you instantly** via Slack + email when any VC replies
-- **You personally respond** — AI never auto-replies in VC campaign mode
-- **Analytics dashboard** — open rates, reply rates, domain health, priority reply inbox
+- **Imports leads** from CSV files
+- **Sends gradually** across multiple Gmail inboxes with rotation, rate limits, and human send-time jitter. Includes 35% reserved limit for inbox warmup.
+- **Generates personalized emails** using Groq (Llama-3.3-70B/Mixtral) — unique opening lines based on LinkedIn/Company data, 50–80 word bodies, and 3 subject variants.
+- **Detects replies** automatically via the Gmail API.
+- **Analytics dashboard** to track open rates, reply rates, domain health, and priority reply inbox management.
+- **Dynamic Configuration** — manage AI models and API keys directly from the UI dashboard.
 
 ---
 
-## Quick Start
+## Quick Start & Setup Guide
 
-### 1. Clone & Set Up
+### 1. Clone & Setup Environment
 
 ```bash
 git clone https://github.com/Nikshay1/Cold-email-Campaign
 cd Cold-email-Campaign
 
-# Copy env file and fill in your API keys
+# Copy the environment file
 cp .env.example .env
 ```
 
-### 2. Fill in `.env`
+### 2. Configure Google Cloud OAuth (Required for Gmail)
+To send emails from your authentic Gmail accounts, you must configure a Google Cloud Project:
+1. Go to the [Google Cloud Console](https://console.cloud.google.com).
+2. Create a new project and enable the **Gmail API**.
+3. Go to **APIs & Services > OAuth consent screen** and set up an External app (add your own email as a Test User if your app is unpublished).
+4. Go to **Credentials**, click **Create Credentials**, and select **OAuth client ID** (Web application).
+5. Add the following to **Authorized redirect URIs**:
+   ```
+   http://localhost:8000/auth/google/callback
+   ```
+6. Copy your **Client ID** and **Client Secret**, and paste them into your `.env` file:
+   ```env
+   GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+   GOOGLE_CLIENT_SECRET=your-client-secret
+   ```
 
-| Key | Where to get it |
-|---|---|
-| `GROQ_API_KEY` | [console.groq.com/keys](https://console.groq.com/keys) |
-| `HUNTER_IO_API_KEY` | [hunter.io/api-keys](https://hunter.io/api-keys) |
-| `SLACK_WEBHOOK_URL` | [api.slack.com/messaging/webhooks](https://api.slack.com/messaging/webhooks) |
-| `GOOGLE_CLIENT_ID/SECRET` | [Google Cloud Console](https://console.cloud.google.com) → Gmail API |
+*(Optional)* Fill in your Slack Webhook URL and SendGrid keys in `.env` if you want external notifications.
 
-> **No keys?** That's fine. The app runs in **mock mode** — Groq and Gmail calls return realistic fake data so you can test the full flow locally.
+### 3. Launch the Application
 
-### 3. Launch
-
-```bash
-docker compose up --build
-```
-
-- API: [http://localhost:8000](http://localhost:8000)
-- Dashboard: [http://localhost:3000](http://localhost:3000)
-- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
----
-
-## Onboarding Checklist
-
-### Step 1 — Add Sending Domains
-Go to **Settings → Inboxes** and add each Gmail inbox. Then authorize it via Google OAuth.
-
-```
-Each domain needs: SPF ✓  DKIM ✓  DMARC ✓
-Each inbox: 14 days warmup before sending cold emails
-Daily limit: 40 sends/inbox, 35% reserved for warmup
-```
-
-### Step 2 — Import Leads
-
-Go to **Leads** → drag and drop your CSV. Required columns:
-```
-email, first_name
-Optional: last_name, title, company_name, company_domain, funding_stage, linkedin_url
-```
-Or use the included sample: `backend/tests/fixtures/sample_leads.csv`
-
-### Step 3 — Create & Launch Campaign
-
-Go to **Campaigns** → click **New Campaign** → fill in:
-- Value proposition (what Cortexa does)
-- Pain point you solve
-- Check **VC Campaign Mode** (ensures no AI auto-replies)
-- Click **Launch** 🚀
-
-### Step 4 — Monitor Replies
-
-Go to **Replies** — the page auto-refreshes every 30 seconds. When a VC replies:
-1. You get a Slack alert + email with the full reply + AI talking points
-2. The sequence is **auto-paused** — no accidental follow-ups
-3. Click **Reply in Gmail** to respond personally
-
----
-
-## Project Structure
-
-```
-Cold-email-Campaign/
-├── backend/
-│   ├── app/
-│   │   ├── main.py              # FastAPI app factory
-│   │   ├── models.py            # SQLAlchemy ORM models
-│   │   ├── config.py            # Settings from .env
-│   │   ├── database.py          # Async DB engine
-│   │   ├── worker.py            # arq background worker
-│   │   ├── routers/
-│   │   │   ├── leads.py         # Lead ingestion + CSV upload
-│   │   │   ├── campaigns.py     # Campaign CRUD + launch
-│   │   │   ├── analytics.py     # Metrics + reply inbox
-│   │   │   ├── inboxes.py       # Inbox management
-│   │   │   ├── tracking.py      # Open pixel + unsubscribe
-│   │   │   └── auth.py          # Google OAuth
-│   │   └── services/
-│   │       ├── leads/
-│   │       │   ├── scoring.py   # ICP lead scorer
-│   │       │   └── enrichment.py # Hunter.io enrichment
-│   │       ├── ai/
-│   │       │   └── personalizer.py # Groq email generator
-│   │       ├── sending/
-│   │       │   ├── inbox_rotator.py
-│   │       │   ├── scheduler.py     # Send-time randomizer
-│   │       │   ├── gmail_sender.py  # Gmail API sender
-│   │       │   └── send_worker.py   # arq send task
-│   │       └── replies/
-│   │           ├── gmail_poller.py  # Cron reply detector
-│   │           ├── classifier.py    # Groq triage
-│   │           └── notifier.py      # Slack + email alerts
-│   └── tests/
-│       ├── fixtures/sample_leads.csv
-│       ├── test_scoring.py
-│       ├── test_scheduler.py
-│       └── test_classifier.py
-├── frontend/
-│   └── src/app/
-│       ├── page.tsx             # Dashboard (funnel + domain health)
-│       ├── leads/page.tsx       # CSV upload + lead table
-│       ├── campaigns/page.tsx   # Campaign management
-│       ├── replies/page.tsx     # Priority VC reply inbox
-│       ├── inboxes/page.tsx     # Gmail OAuth connection
-│       └── settings/page.tsx    # Configuration instructions
-├── docker-compose.yml
-├── .env.example
-└── README.md
-```
-
----
-
-## Sending Limits (Safe Defaults)
-
-| Inboxes | Safe Cold Emails/Day |
-|---|---|
-| 5 domains × 3 inboxes | ~390/day |
-| 15 domains × 3 inboxes | ~1,170/day |
-| 40 domains × 3 inboxes | ~3,120/day |
-
-Rule: **Max 40 sends/inbox/day, 35% reserved for warmup** (always keep warmup running).
-
----
-
-## Running Tests
+Make sure Docker Desktop is running, then boot everything up:
 
 ```bash
-cd backend
-pip install -e ".[dev]"
-pytest tests/ -v
+docker compose up --build -d
 ```
 
+Your services are now running:
+- **Dashboard (Next.js)**: [http://localhost:3000](http://localhost:3000)
+- **Backend API (FastAPI)**: [http://localhost:8000](http://localhost:8000)
+- **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
+
 ---
 
-## Tech Stack
+## How to Use the System
 
-| Layer | Tech |
+### Step 1: Configure AI (Groq API)
+1. Navigate to **[Settings](http://localhost:3000/settings)** in the Dashboard.
+2. Get a free API key from [console.groq.com/keys](https://console.groq.com/keys).
+3. Paste the key into the UI and select your preferred AI model (e.g., `llama-3.3-70b-versatile`). Click **Save Settings**. This is saved securely to your local database.
+
+### Step 2: Connect Sending Inboxes
+1. Go to **[Inboxes](http://localhost:3000/inboxes)**.
+2. Enter the Email Address you want to send from (e.g., `nikshay@cortexalabs.io` or a personal `@gmail.com` account for testing), a Sender Name, and the Domain.
+3. Click **Continue to Google OAuth**. You will be redirected to Google to grant permissions. Once approved, the inbox will show a green `GOOD` health status.
+
+### Step 3: Import Leads
+1. Go to **[Leads](http://localhost:3000/leads)** -> Click Upload CSV.
+2. Upload a CSV file. The file must have at minimum an `email` and `first_name` column.
+   *Optional high-value AI personalization columns: `title`, `company_name`, `company_recent_news`, `linkedin_recent_post`*.
+   *(A sample CSV is available in `backend/tests/fixtures/sample_leads.csv`)*
+
+### Step 4: Launch a Campaign
+1. Go to **[Campaigns](http://localhost:3000/campaigns)** -> Click **New Campaign**.
+2. Write out your **Value Proposition** and the **Pain Point** you are solving.
+3. Use the **Custom AI Instructions** (optional) to give the AI specific behaviors or rules for this campaign (e.g. "Mention we recently raised a Seed Round").
+4. The AI engine will automatically combine your proposition with the lead data to write hyper-personalized outreach.
+5. Click **Launch**! The backend scheduler will distribute the emails safely across your connected inboxes.
+
+### Step 5: Monitor Replies
+1. The backend automatically polls connected Gmail inboxes for replies every few minutes.
+2. Go to **[Replies](http://localhost:3000/replies)** to see a prioritized list of responses. 
+3. Cortexa's AI automatically categorizes them (e.g., "Interested", "Wrong Person", "Not Now") so you know who to respond to first.
+
+---
+
+## Architecture & Tech Stack
+
+| Layer | Technology |
 |---|---|
-| Backend | FastAPI + SQLAlchemy + arq |
-| Database | PostgreSQL 16 |
-| Queue | Redis 7 + arq |
-| AI | Llama 3.3 70B (Groq) |
-| Email Send | Gmail API (OAuth2) |
-| Enrichment | Hunter.io |
-| Notifications | Slack Webhooks + SendGrid |
-| Frontend | Next.js 14 + Tailwind + Tremor |
-| Infra | Docker Compose |
+| **Frontend** | Next.js 14, React, Tailwind CSS |
+| **Backend API** | Python, FastAPI, SQLAlchemy |
+| **Database** | PostgreSQL 16 |
+| **Task Queue** | Redis 7, python-arq |
+| **AI Inference** | Groq API (Llama 3, Mixtral) |
+| **Integrations** | Gmail API (OAuth2) |
+| **Infrastructure**| Docker Compose |
 
 ---
-
-*Built by Cortexa Labs — March 2026*
+*Built by Cortexa Labs*

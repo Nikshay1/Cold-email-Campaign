@@ -1,47 +1,37 @@
-"""Campaigns router: CRUD + sequence launcher."""
+"""Campaigns router: CRUD + launch (Templated)."""
 
 import logging
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func
+from sqlalchemy import select
 from datetime import datetime
 import arq
 
 from app.database import get_db
-from app.models import Campaign, CampaignStatus, Lead, LeadTier, EmailRecord, EmailStatus
+from app.models import Campaign, CampaignStatus, Lead, EmailRecord, EmailStatus, Inbox
 from app.config import get_settings
-from app.services.ai.personalizer import personalize_email
+from app.services.templating import render_template
 from app.services.sending.scheduler import get_randomized_send_time
 
 settings = get_settings()
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
-SEQUENCE_STEPS = {
-    "tier1": [0, 3, 7, 14, 21],   # days after initial send
-    "tier2": [0, 4, 10],
-    "tier3": [0, 5],
-}
-
 
 class CampaignCreate(BaseModel):
     name: str
     description: Optional[str] = None
-    sequence_type: str = "tier1"
-    is_vc_campaign: bool = False
-    value_proposition: str
-    pain_point: str
-    lead_ids: Optional[list[str]] = None  # specific leads; if None, auto-select by tier
+    subject: str
+    body_template: str
+    selected_inbox_ids: list[str]
 
 
 class CampaignResponse(BaseModel):
     id: str
     name: str
     status: str
-    sequence_type: str
-    is_vc_campaign: bool
     total_leads: int
     sent_count: int
     open_count: int
@@ -55,13 +45,15 @@ class CampaignResponse(BaseModel):
 
 @router.post("/", response_model=CampaignResponse, status_code=201)
 async def create_campaign(data: CampaignCreate, db: AsyncSession = Depends(get_db)):
+    if not data.selected_inbox_ids:
+        raise HTTPException(status_code=400, detail="Must select at least one inbox")
+        
     campaign = Campaign(
         name=data.name,
         description=data.description,
-        sequence_type=data.sequence_type,
-        is_vc_campaign=data.is_vc_campaign,
-        value_proposition=data.value_proposition,
-        pain_point=data.pain_point,
+        subject=data.subject,
+        body_template=data.body_template,
+        selected_inboxes=data.selected_inbox_ids,
     )
     db.add(campaign)
     await db.flush()
@@ -74,7 +66,7 @@ async def launch_campaign(
     background_tasks: BackgroundTasks,
     db: AsyncSession = Depends(get_db),
 ):
-    """Launch campaign: generates emails + enqueues send jobs."""
+    """Launch campaign: generates templated emails + enqueues send jobs via round robin."""
     result = await db.execute(select(Campaign).where(Campaign.id == campaign_id))
     campaign = result.scalar_one_or_none()
     if not campaign:
@@ -82,9 +74,15 @@ async def launch_campaign(
     if campaign.status == CampaignStatus.ACTIVE:
         raise HTTPException(status_code=400, detail="Campaign already active")
 
+    # Fetch selected inboxes
+    inboxes_result = await db.execute(
+        select(Inbox).where(Inbox.id.in_(campaign.selected_inboxes or []))
+    )
+    inboxes = inboxes_result.scalars().all()
+    if not inboxes:
+        raise HTTPException(status_code=400, detail="Selected inboxes not found in database; cannot launch.")
+
     # Select leads for campaign
-    tier_map = {"tier1": LeadTier.TIER1, "tier2": LeadTier.TIER2, "tier3": LeadTier.TIER3}
-    tier = tier_map.get(campaign.sequence_type, LeadTier.TIER2)
     leads_result = await db.execute(
         select(Lead).where(
             Lead.is_suppressed == False,
@@ -99,46 +97,41 @@ async def launch_campaign(
     campaign.status = CampaignStatus.ACTIVE
     campaign.total_leads = len(leads)
 
-    steps = SEQUENCE_STEPS.get(campaign.sequence_type, SEQUENCE_STEPS["tier2"])
     records_created = 0
 
-    for lead in leads:
-        email_result = await personalize_email(
-            lead=lead,
+    # Round-robin distribution
+    for i, lead in enumerate(leads):
+        assigned_inbox = inboxes[i % len(inboxes)]
+        
+        # Space out emails by 15 mins per lead 
+        # (20 leads per account per day implies safe slow sending)
+        jitter_add = i * 60 * 15 
+        send_time = get_randomized_send_time(jitter_add_seconds=jitter_add)
+
+        # Template substitution
+        subject = render_template(campaign.subject, lead)
+        body = render_template(campaign.body_template, lead)
+
+        record = EmailRecord(
+            lead_id=lead.id,
             campaign_id=campaign.id,
-            value_proposition=campaign.value_proposition,
-            pain_point=campaign.pain_point,
+            inbox_id=assigned_inbox.id, # Explicit round-robin assignment
+            subject=subject,
+            body=body,
             sequence_step=1,
+            status=EmailStatus.QUEUED,
+            scheduled_at=send_time,
         )
+        db.add(record)
+        await db.flush()
+        records_created += 1
 
-        for step_num, day_offset in enumerate(steps, start=1):
-            jitter_add = step_num * 3600  # spread steps across hours
-            send_time = get_randomized_send_time(jitter_add_seconds=day_offset * 86400 + jitter_add)
-
-            subject = email_result.subject
-            if step_num > 1:
-                subject = f"Re: {email_result.subject}"
-
-            record = EmailRecord(
-                lead_id=lead.id,
-                campaign_id=campaign.id,
-                subject=subject,
-                body=email_result.body,
-                personalization_score=email_result.personalization_score,
-                sequence_step=step_num,
-                status=EmailStatus.QUEUED,
-                scheduled_at=send_time,
-            )
-            db.add(record)
-            await db.flush()
-            records_created += 1
-
-            # Enqueue arq deferred job
-            background_tasks.add_task(_enqueue_send_job, record.id, send_time)
+        # Enqueue arq deferred job
+        background_tasks.add_task(_enqueue_send_job, record.id, send_time)
 
     await db.commit()
     return {
-        "message": f"Campaign launched with {len(leads)} leads, {records_created} emails queued",
+        "message": f"Campaign launched with {len(leads)} leads equally divided across {len(inboxes)} sender inboxes.",
         "campaign_id": campaign_id,
         "emails_queued": records_created,
     }

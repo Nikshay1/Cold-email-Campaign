@@ -1,108 +1,107 @@
 # Cortexa Labs — Cold Email Automation Engine
 
-> **AI-powered cold email system** built for Cortexa Labs to automate outreach to VCs and prospects while maintaining world-class deliverability and human-first reply handling.
+> **A beautifully simple, template-based cold email platform** built to automatically distribute your outreach campaigns across multiple Gmail accounts to ensure high deliverability and zero spam flags.
 
 ---
 
-## What This Does
+## 🚀 What This Does
 
-- **Imports leads** from CSV files
-- **Sends gradually** across multiple Gmail inboxes with rotation, rate limits, and human send-time jitter. Includes 35% reserved limit for inbox warmup.
-- **Generates personalized emails** using Groq (Llama-3.3-70B/Mixtral) — unique opening lines based on LinkedIn/Company data, 50–80 word bodies, and 3 subject variants.
-- **Detects replies** automatically via the Gmail API.
-- **Analytics dashboard** to track open rates, reply rates, domain health, and priority reply inbox management.
-- **Dynamic Configuration** — manage AI models and API keys directly from the UI dashboard.
+- **Upload Leads:** Drop in a CSV file with your prospects' names and emails.
+- **Connect Gmails:** Link as many Gmail or Google Workspace accounts as you want.
+- **Write Templates:** Draft a single email using tags like `[NAME]` or `[COMPANY]` and the system will automatically personalize every single email.
+- **Inbox Rotation (Round-Robin):** If you upload 1,000 leads and select 4 sender inboxes, the system will perfectly divide the work, sending exactly 250 emails from each account to keep your sending limits perfectly safe.
+- **Read Replies:** The system automatically checks your connected inboxes and pulls all replies perfectly into a centralized dashboard!
 
 ---
 
-## Quick Start & Setup Guide
+## 🛠️ Step 1: Getting Started
 
-### 1. Clone & Setup Environment
+You only need to do this once to boot up the system on your computer.
 
-```bash
-git clone https://github.com/Nikshay1/Cold-email-Campaign
-cd Cold-email-Campaign
+1. Open your terminal in this folder.
+2. Ensure Docker Desktop is open and running on your computer.
+3. Run the following command exactly as written:
+   ```bash
+   docker compose up --build -d
+   ```
+4. Wait a minute for it to finish booting up.
 
-# Copy the environment file
-cp .env.example .env
-```
+Your application is now live! 
+👉 **Open your browser and jump into the dashboard:** [http://localhost:3000](http://localhost:3000)
 
-### 2. Configure Google Cloud OAuth (Required for Gmail)
-To send emails from your authentic Gmail accounts, you must configure a Google Cloud Project:
+---
+
+## ⚙️ Step 2: Configure Google (One-Time Setup)
+
+To allow the platform to physically send emails through your Gmail accounts, you just need a standard Google Cloud App set up.
+
 1. Go to the [Google Cloud Console](https://console.cloud.google.com).
 2. Create a new project and enable the **Gmail API**.
-3. Go to **APIs & Services > OAuth consent screen** and set up an External app (add your own email as a Test User if your app is unpublished).
+3. Go to **APIs & Services > OAuth consent screen** and set up an External app (add your own email as a Test User).
 4. Go to **Credentials**, click **Create Credentials**, and select **OAuth client ID** (Web application).
 5. Add the following to **Authorized redirect URIs**:
    ```
    http://localhost:8000/auth/google/callback
    ```
-6. Copy your **Client ID** and **Client Secret**, and paste them into your `.env` file:
+6. Open the hidden `.env` file in the root of this project folder and paste your new keys:
    ```env
    GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
    GOOGLE_CLIENT_SECRET=your-client-secret
    ```
 
-*(Optional)* Fill in your Slack Webhook URL and SendGrid keys in `.env` if you want external notifications.
-
-### 3. Launch the Application
-
-Make sure Docker Desktop is running, then boot everything up:
-
-```bash
-docker compose up --build -d
-```
-
-Your services are now running:
-- **Dashboard (Next.js)**: [http://localhost:3000](http://localhost:3000)
-- **Backend API (FastAPI)**: [http://localhost:8000](http://localhost:8000)
-- **API Documentation**: [http://localhost:8000/docs](http://localhost:8000/docs)
+*(Restart your terminal `docker compose down && docker compose up -d` if you edit the .env file).*
 
 ---
 
-## How to Use the System
+## 📧 Step 3: Connect Your Senders
 
-### Step 1: Configure AI (Groq API)
-1. Navigate to **[Settings](http://localhost:3000/settings)** in the Dashboard.
-2. Get a free API key from [console.groq.com/keys](https://console.groq.com/keys).
-3. Paste the key into the UI and select your preferred AI model (e.g., `llama-3.3-70b-versatile`). Click **Save Settings**. This is saved securely to your local database.
+Now let's add the actual Gmail accounts that will do the sending.
 
-### Step 2: Connect Sending Inboxes
-1. Go to **[Inboxes](http://localhost:3000/inboxes)**.
-2. Enter the Email Address you want to send from (e.g., `nikshay@cortexalabs.io` or a personal `@gmail.com` account for testing), a Sender Name, and the Domain.
-3. Click **Continue to Google OAuth**. You will be redirected to Google to grant permissions. Once approved, the inbox will show a green `GOOD` health status.
+1. Go to **[Inboxes](http://localhost:3000/inboxes)** in the Dashboard.
+2. Type in the Email Address (e.g. `nikshayyadav90@gmail.com`), your Display Name, and click **Connect**.
+3. You will be redirected to Google to click "Allow". 
+4. Once you return, the inbox will show a green `GOOD` health status! You can connect as many as you want.
 
-### Step 3: Import Leads
-1. Go to **[Leads](http://localhost:3000/leads)** -> Click Upload CSV.
-2. Upload a CSV file. The file must have at minimum an `email` and `first_name` column.
-   *Optional high-value AI personalization columns: `title`, `company_name`, `company_recent_news`, `linkedin_recent_post`*.
-   *(A sample CSV is available in `backend/tests/fixtures/sample_leads.csv`)*
+---
 
-### Step 4: Launch a Campaign
+## 👥 Step 4: Upload Your Prospects
+
+1. Go to **[Leads](http://localhost:3000/leads)** -> Click **Upload CSV**.
+2. Upload your list. 
+   - *Note: Your CSV spreadsheet must have the headers `first_name` and `email` for the system to read them correctly.*
+
+*(A testing sample CSV is already available for you inside the `backend/tests/fixtures/sample_leads.csv` folder!)*
+
+---
+
+## 🎯 Step 5: Launch Your Campaign
+
+The magic happens here. We will distribute your emails gently so you never get blocked by Google.
+
 1. Go to **[Campaigns](http://localhost:3000/campaigns)** -> Click **New Campaign**.
-2. Write out your **Value Proposition** and the **Pain Point** you are solving.
-3. Use the **Custom AI Instructions** (optional) to give the AI specific behaviors or rules for this campaign (e.g. "Mention we recently raised a Seed Round").
-4. The AI engine will automatically combine your proposition with the lead data to write hyper-personalized outreach.
-5. Click **Launch**! The backend scheduler will distribute the emails safely across your connected inboxes.
+2. Give your campaign a name.
+3. **Select Sender Inboxes:** You will see a checklist of all the Gmails you connected in Step 3. Check the ones you want to use. The system will evenly divide the emails across the ones you select!
+4. **Subject Line:** Write your subject. You can use tags! Example: `Quick question for [NAME]`
+5. **Email Body:** Write your email. 
+   ```text
+   Hi [NAME],
 
-### Step 5: Monitor Replies
-1. The backend automatically polls connected Gmail inboxes for replies every few minutes.
-2. Go to **[Replies](http://localhost:3000/replies)** to see a prioritized list of responses. 
-3. Cortexa's AI automatically categorizes them (e.g., "Interested", "Wrong Person", "Not Now") so you know who to respond to first.
+   I saw that [COMPANY] is doing some great work. I'd love to chat.
+
+   Best,
+   Nikshay
+   ```
+6. Click **Launch Sequence**! 
+7. The system will now begin actively sending the emails in the background. It will automatically space the emails out by a few minutes each to ensure your account stays completely safe from spam filters. 
 
 ---
 
-## Architecture & Tech Stack
+## 📬 Step 6: Monitor Replies
 
-| Layer | Technology |
-|---|---|
-| **Frontend** | Next.js 14, React, Tailwind CSS |
-| **Backend API** | Python, FastAPI, SQLAlchemy |
-| **Database** | PostgreSQL 16 |
-| **Task Queue** | Redis 7, python-arq |
-| **AI Inference** | Groq API (Llama 3, Mixtral) |
-| **Integrations** | Gmail API (OAuth2) |
-| **Infrastructure**| Docker Compose |
+You don't need to log into 5 different Gmail accounts to check for replies anymore!
+1. The backend automatically reads your connected Gmail inboxes every few minutes.
+2. Go to **[Replies](http://localhost:3000/replies)**.
+3. Every single reply from your prospects will appear right here in a unified inbox feed for you to read.
 
 ---
 *Built by Cortexa Labs*

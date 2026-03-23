@@ -35,17 +35,21 @@ export default function CampaignsPage() {
 
   const fetchData = async () => {
     try {
-      const r = await fetch(`${API}/api/campaigns`)
+      const r = await fetch(`${API}/api/campaigns/`)
       setCampaigns(await r.json())
       
-      const i = await fetch(`${API}/api/inboxes`)
+      const i = await fetch(`${API}/api/inboxes/`)
       setInboxes(await i.json())
     } catch {
       console.error('Failed to fetch dashboard data')
     }
   }
 
-  useEffect(() => { fetchData() }, [])
+  useEffect(() => { 
+    fetchData() 
+    const interval = setInterval(fetchData, 5000)
+    return () => clearInterval(interval)
+  }, [])
 
   const createCampaign = async () => {
     if (form.selected_inbox_ids.length === 0) {
@@ -96,7 +100,12 @@ export default function CampaignsPage() {
           <h1 style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>Campaigns</h1>
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>Launch and distribute templated sequences</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowCreate(true)}>+ New Campaign</button>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button className="btn btn-secondary" onClick={() => window.open(`${API}/api/campaigns/follow-up-csv`)}>
+            📥 Download Follow-Ups CSV
+          </button>
+          <button className="btn btn-primary" onClick={() => setShowCreate(true)}>+ New Campaign</button>
+        </div>
       </div>
 
       {/* Create modal */}

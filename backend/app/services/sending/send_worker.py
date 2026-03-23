@@ -8,7 +8,7 @@ import redis.asyncio as aioredis
 
 from app.config import get_settings
 from app.database import AsyncSessionLocal, get_redis
-from app.models import EmailRecord, EmailStatus, Lead, Inbox, Campaign
+from app.models import EmailRecord, EmailStatus, Lead, Inbox, Campaign, LeadStatus
 from app.services.sending.gmail_sender import send_email_via_gmail
 from app.services.sending.inbox_rotator import increment_send_count
 
@@ -70,22 +70,29 @@ async def send_email_task(ctx: dict, email_record_id: str):
                 unsubscribe_url=unsubscribe_url,
             )
 
-            # Update record
-            record.status = EmailStatus.SENT
-            record.inbox_id = inbox.id
-            record.gmail_message_id = gmail_result.get("id")
-            record.gmail_thread_id = gmail_result.get("threadId")
-            record.sent_at = datetime.utcnow()
-
-            # Update campaign metrics
-            campaign_result = await db.execute(select(Campaign).where(Campaign.id == record.campaign_id))
-            campaign = campaign_result.scalar_one_or_none()
-            if campaign:
-                campaign.sent_count += 1
+            # Update record atomically 
+            from sqlalchemy import update
+            await db.execute(
+                update(EmailRecord)
+                .where(EmailRecord.id == record.id)
+                .values(
+                    status=EmailStatus.SENT,
+                    inbox_id=inbox.id,
+                    gmail_message_id=gmail_result.get("id"),
+                    gmail_thread_id=gmail_result.get("threadId"),
+                    sent_at=datetime.utcnow()
+                )
+            )
+            from sqlalchemy import update
+            await db.execute(
+                update(Campaign)
+                .where(Campaign.id == record.campaign_id)
+                .values(sent_count=Campaign.sent_count + 1)
+            )
                 
             # Update lead status if first email
             if record.sequence_step == 1:
-                lead.status = "contacted"
+                lead.status = LeadStatus.CONTACTED
 
             # Increment rate limiter
             await increment_send_count(inbox.email, redis)

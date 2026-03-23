@@ -29,7 +29,7 @@ export default function LeadsPage() {
 
   const fetchLeads = async () => {
     try {
-      const r = await fetch(`${API}/api/leads?limit=100`)
+      const r = await fetch(`${API}/api/leads?limit=500`)
       setLeads(await r.json())
     } catch {
       setLeads([
@@ -40,15 +40,42 @@ export default function LeadsPage() {
     }
   }
 
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this lead?')) return
+    try {
+      await fetch(`${API}/api/leads/${id}`, { method: 'DELETE' })
+      setLeads(leads.filter(l => l.id !== id))
+    } catch {
+      alert('Failed to delete lead')
+    }
+  }
+
+  const handleDeleteAll = async () => {
+    if (!confirm('Are you ABSOLUTELY sure you want to delete ALL leads?')) return
+    try {
+      await fetch(`${API}/api/leads`, { method: 'DELETE' })
+      setLeads([])
+    } catch {
+      alert('Failed to delete all leads')
+    }
+  }
+
   if (leads.length === 0 && !uploading) fetchLeads()
 
   const tierColor = (t: string) => t === 'tier1' ? '#f87171' : t === 'tier2' ? '#facc15' : '#818cf8'
 
   return (
     <div>
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>Leads</h1>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>Import and manage your VC prospect list</p>
+      <div style={{ marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'white', margin: 0 }}>Leads</h1>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)', marginTop: 4 }}>Import and manage your VC prospect list</p>
+        </div>
+        {leads.length > 0 && (
+          <button className="btn btn-secondary" style={{ color: '#ef4444', borderColor: 'rgba(239,68,68,0.3)' }} onClick={handleDeleteAll}>
+            🗑️ Delete All
+          </button>
+        )}
       </div>
 
       {/* Upload area */}
@@ -84,14 +111,25 @@ export default function LeadsPage() {
           {result.error ? (
             <div style={{ color: '#f87171', fontSize: 13 }}>❌ {result.error}</div>
           ) : (
-            <div style={{ fontSize: 13 }}>
-              <span style={{ color: '#4ade80', fontWeight: 600 }}>✅ {result.imported} imported</span>
-              <span style={{ color: 'var(--text-secondary)', marginLeft: 12 }}>⏭ {result.skipped} skipped (duplicates)</span>
+            <>
+              <div style={{ fontSize: 13 }}>
+                <span style={{ color: '#4ade80', fontWeight: 600 }}>✅ {result.imported} imported</span>
+                <span style={{ color: 'var(--text-secondary)', marginLeft: 12 }}>⏭ {result.skipped} skipped (duplicates)</span>
+                {result.errors?.length > 0 && (
+                  <span style={{ color: '#facc15', marginLeft: 12 }}>⚠️ {result.errors.length} errors</span>
+                )}
+              </div>
               {result.errors?.length > 0 && (
-                <span style={{ color: '#facc15', marginLeft: 12 }}>⚠️ {result.errors.length} errors</span>
+                <details style={{ marginTop: 8 }}>
+                  <summary style={{ fontSize: 12, color: '#facc15', cursor: 'pointer' }}>Show error details</summary>
+                  <div style={{ marginTop: 6, maxHeight: 200, overflowY: 'auto' }}>
+                    {result.errors.map((e: string, i: number) => (
+                      <div key={i} style={{ fontSize: 11, color: '#f87171', fontFamily: 'monospace', marginBottom: 2 }}>{e}</div>
+                    ))}
+                  </div>
+                </details>
               )}
-            </div>
-          )}
+            </>
         </div>
       )}
 
@@ -102,12 +140,12 @@ export default function LeadsPage() {
         </div>
         <table className="data-table">
           <thead>
-            <tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th><th>ICP Score</th><th>Tier</th><th>Status</th></tr>
+            <tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th><th>ICP Score</th><th>Tier</th><th>Status</th><th>Actions</th></tr>
           </thead>
           <tbody>
             {leads.map(l => (
               <tr key={l.id}>
-                <td style={{ fontWeight: 500, color: 'white' }}>{l.first_name} {l.last_name || ''}</td>
+                <td style={{ fontWeight: 500, color: 'white' }}>{l.full_name || `${l.first_name || ''} ${l.last_name || ''}`.trim() || '—'}</td>
                 <td style={{ fontFamily: 'monospace', fontSize: 12, color: 'var(--text-secondary)' }}>{l.email}</td>
                 <td style={{ color: 'var(--text-secondary)', fontSize: 12 }}>{l.title || '—'}</td>
                 <td style={{ fontSize: 12 }}>{l.company_name || '—'}</td>
@@ -123,6 +161,9 @@ export default function LeadsPage() {
                 </td>
                 <td>
                   <span style={{ fontSize: 11, color: 'var(--text-secondary)' }}>{l.status}</span>
+                </td>
+                <td>
+                  <button onClick={() => handleDelete(l.id)} style={{ background: 'transparent', border: 'none', cursor: 'pointer', fontSize: 14 }} title="Delete Lead">🗑️</button>
                 </td>
               </tr>
             ))}

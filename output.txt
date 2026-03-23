@@ -1,0 +1,39 @@
+Testing inbox: nikshaypookiw@gmail.com
+Found 5 unread messages via API query with -from:me
+Found 5 unread messages WITHOUT -from:me
+
+--- MSG ID 19d19628e9efe165 ---
+Subject: Hey saw ur mail
+From: Nikshay yadav <nikshayyadav90@gmail.com>
+In-Reply-To: None
+ThreadId: 19d19628e9efe165
+ -> Ignored: No In-Reply-To header
+
+--- MSG ID 19d195d028c244e5 ---
+Subject: Re: Heyyy Nikshay
+From: Nikshay yadav <nikshayyadav90@gmail.com>
+In-Reply-To: <CALC+vGykBvQY_1OfcQoKbaWP8--qtz-5NpQTy_kLojtV--SdZg@mail.gmail.com>
+ThreadId: 19d195c5497b5457
+ -> FAILED TO MATCH in DB EmailRecord
+
+--- MSG ID 19d06263e81a5665 ---
+Subject: Security alert
+From: Google <no-reply@accounts.google.com>
+In-Reply-To: None
+ThreadId: 19d06263e81a5665
+ -> Ignored: No In-Reply-To header
+
+--- MSG ID 19a99d22a261dd12 ---
+Subject: Annual reminder about YouTube’s Terms of Service, Community Guidelines and Privacy Policy
+
+From: YouTube <no-reply@youtube.com>
+In-Reply-To: None
+ThreadId: 19a99d22a261dd12
+ -> Ignored: No In-Reply-To header
+
+--- MSG ID 198fe18b626425dd ---
+Subject: Updates to Discord’s Policies
+From: Discord <notifications@discord.com>
+In-Reply-To: None
+ThreadId: 198fe18b626425dd
+ -> Ignored: No In-Reply-To header

@@ -2,12 +2,14 @@
 
 import logging
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks, Response
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from datetime import datetime
+from datetime import datetime, timedelta
 import arq
+import io
+import csv
 
 from app.database import get_db
 from app.models import Campaign, CampaignStatus, Lead, EmailRecord, EmailStatus, Inbox
@@ -19,6 +21,11 @@ settings = get_settings()
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+def get_next_business_day(current_date):
+    next_day = current_date + timedelta(days=1)
+    while next_day.weekday() >= 5:
+        next_day += timedelta(days=1)
+    return next_day
 
 class CampaignCreate(BaseModel):
     name: str
@@ -100,13 +107,24 @@ async def launch_campaign(
     records_created = 0
 
     # Round-robin distribution
+    inbox_states = {inb.id: {"date": datetime.utcnow().date(), "count": 0} for inb in inboxes}
+
     for i, lead in enumerate(leads):
         assigned_inbox = inboxes[i % len(inboxes)]
+        state = inbox_states[assigned_inbox.id]
         
-        # Space out emails by 15 mins per lead 
-        # (20 leads per account per day implies safe slow sending)
-        jitter_add = i * 60 * 15 
-        send_time = get_randomized_send_time(jitter_add_seconds=jitter_add)
+        # Enforce daily limit specific to inbox
+        if state["count"] >= assigned_inbox.daily_limit:
+            state["date"] = get_next_business_day(state["date"])
+            state["count"] = 0
+            
+        # Space out emails by 5 mins per lead 
+        jitter_add = state["count"] * 60 * 5 
+        send_time = get_randomized_send_time(
+            jitter_add_seconds=jitter_add, 
+            target_date=state["date"]
+        )
+        state["count"] += 1
 
         # Template substitution
         subject = render_template(campaign.subject, lead)
@@ -153,8 +171,33 @@ async def _enqueue_send_job(record_id: str, send_time: datetime):
 
 @router.get("/", response_model=list[CampaignResponse])
 async def list_campaigns(db: AsyncSession = Depends(get_db)):
+    from sqlalchemy import func
     result = await db.execute(select(Campaign).order_by(Campaign.created_at.desc()))
-    return result.scalars().all()
+    campaigns = result.scalars().all()
+    
+    response = []
+    for c in campaigns:
+        # Dynamically calculate exact counts straight from the EmailRecords
+        total = (await db.execute(select(func.count(EmailRecord.id)).where(EmailRecord.campaign_id == c.id))).scalar()
+        sent = (await db.execute(select(func.count(EmailRecord.id)).where(EmailRecord.campaign_id == c.id, EmailRecord.status == EmailStatus.SENT))).scalar()
+        
+        from app.models import Reply
+        replies = (await db.execute(
+            select(func.count(Reply.id)).join(EmailRecord).where(EmailRecord.campaign_id == c.id)
+        )).scalar()
+        
+        response.append({
+            "id": c.id,
+            "name": c.name,
+            "status": c.status.value,
+            "total_leads": total or 0,
+            "sent_count": sent or 0,
+            "open_count": c.open_count,
+            "reply_count": replies or 0,
+            "bounce_count": c.bounce_count,
+            "created_at": c.created_at
+        })
+    return response
 
 
 @router.get("/{campaign_id}", response_model=CampaignResponse)
@@ -174,3 +217,41 @@ async def pause_campaign(campaign_id: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Campaign not found")
     campaign.status = CampaignStatus.PAUSED
     return {"message": "Campaign paused"}
+
+
+@router.get("/follow-up-csv")
+async def generate_follow_up_csv(db: AsyncSession = Depends(get_db)):
+    """Generate and download a CSV of leads that haven't replied in 3 days."""
+    from sqlalchemy.orm import selectinload
+    
+    three_days_ago = datetime.utcnow() - timedelta(days=3)
+    
+    query = select(EmailRecord).where(
+        EmailRecord.status == EmailStatus.SENT,
+        EmailRecord.sent_at <= three_days_ago
+    ).options(selectinload(EmailRecord.reply), selectinload(EmailRecord.lead))
+    
+    result = await db.execute(query)
+    records = result.scalars().all()
+    
+    follow_ups = [r for r in records if r.reply is None]
+    
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["email", "first_name", "last_name", "sent_at", "subject"])
+    
+    for r in follow_ups:
+        writer.writerow([
+            r.lead.email,
+            r.lead.first_name,
+            r.lead.last_name or "",
+            r.sent_at.isoformat() if r.sent_at else "",
+            r.subject
+        ])
+        
+    return Response(
+        content=output.getvalue(),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=follow_up.csv"}
+    )
+

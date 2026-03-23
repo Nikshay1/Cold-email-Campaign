@@ -20,7 +20,7 @@ TRACKING_PIXEL = bytes([
 ])
 
 
-@router.get("/open/{tracking_id}")
+@router.get("/track/open/{tracking_id}")
 async def track_open(tracking_id: str, db: AsyncSession = Depends(get_db)):
     """Tracking pixel endpoint — records email open."""
     result = await db.execute(

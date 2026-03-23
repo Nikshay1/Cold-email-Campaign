@@ -44,30 +44,20 @@ export default function RepliesPage() {
       const data = await r.json()
       setReplies(data)
     } catch {
-      // Mock data for development
-      setReplies([
-        {
-          reply_id: '1', classification: 'INTERESTED', confidence: 0.92,
-          ai_summary: 'VC is open to a call and asks about Cortexa\'s traction metrics',
-          talking_points: ['Share MoM growth numbers', 'Highlight target market size', 'Propose a 15-min call slot'],
-          raw_text_preview: 'Hi Nikshay, thanks for reaching out. We\'ve been looking at the AI outreach space and Cortexa sounds interesting. Would love to hear more about your traction. Happy to jump on a call — what works for you this week?',
-          needs_human_reply: true,
-          received_at: new Date().toISOString(),
-          lead: { id: '1', name: 'Rahul Mehta', email: 'rahul@sequoiaindia.com', title: 'Partner', company: 'Sequoia Capital India', funding_stage: 'Fund' },
-        },
-        {
-          reply_id: '2', classification: 'NOT_NOW', confidence: 0.85,
-          ai_summary: 'VC says timing not right, suggested following up next quarter',
-          talking_points: ['Acknowledge their timeline', 'Ask when to reconnect', 'Send a brief update in 60 days'],
-          raw_text_preview: 'Thanks for the note. We\'re in the middle of closing our current fund cycle so bandwidth is limited right now. Could you ping me again in Q3?',
-          needs_human_reply: true,
-          received_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-          lead: { id: '2', name: 'Priya Nair', email: 'priya@accelindia.com', title: 'Principal', company: 'Accel India', funding_stage: 'Fund' },
-        },
-      ])
+      console.error("Failed to fetch replies")
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleForceSync = async () => {
+    setLoading(true)
+    try {
+      await fetch(`${API}/api/analytics/replies/sync`, { method: 'POST' })
+    } catch (e) {
+      console.error(e)
+    }
+    await fetchReplies()
   }
 
   useEffect(() => {
@@ -115,7 +105,7 @@ export default function RepliesPage() {
             {f === 'ALL' ? '📋 All' : CLASSIFICATION_CONFIG[f as keyof typeof CLASSIFICATION_CONFIG].emoji + ' ' + CLASSIFICATION_CONFIG[f as keyof typeof CLASSIFICATION_CONFIG].label}
           </button>
         ))}
-        <button className="btn btn-secondary" style={{ marginLeft: 'auto', fontSize: 12 }} onClick={fetchReplies}>
+        <button className="btn btn-secondary" style={{ marginLeft: 'auto', fontSize: 12 }} onClick={handleForceSync}>
           🔄 Refresh
         </button>
       </div>

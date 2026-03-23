@@ -41,7 +41,7 @@ def create_app() -> FastAPI:
     app.include_router(campaigns.router, prefix="/api/campaigns", tags=["campaigns"])
     app.include_router(inboxes.router, prefix="/api/inboxes", tags=["inboxes"])
     app.include_router(analytics.router, prefix="/api/analytics", tags=["analytics"])
-    app.include_router(tracking.router, prefix="/track", tags=["tracking"])
+    app.include_router(tracking.router, prefix="", tags=["tracking"])
     app.include_router(settings_router.router, prefix="/api/settings", tags=["settings"])
 
     @app.get("/health")

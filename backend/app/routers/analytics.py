@@ -132,6 +132,22 @@ async def reply_inbox(
     ]
 
 
+@router.post("/replies/sync")
+async def force_sync_replies():
+    """Force an immediate sync of Gmail replies bypassing the 5-minute cron."""
+    from app.services.replies.gmail_poller import poll_replies_task
+    from fastapi import HTTPException
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        await poll_replies_task({})
+        return {"message": "Sync complete"}
+    except Exception as e:
+        logger.error(f"Force sync failed: {e}")
+        raise HTTPException(status_code=500, detail="Failed to sync. Is your App Password valid?")
+
+
 @router.post("/replies/{reply_id}/handled")
 async def mark_reply_handled(reply_id: str, db: AsyncSession = Depends(get_db)):
     """Mark a reply as handled by Nikshay."""

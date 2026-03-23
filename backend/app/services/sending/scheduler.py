@@ -21,6 +21,7 @@ def get_randomized_send_time(
     base: datetime | None = None,
     prospect_country: str = "IN",
     jitter_add_seconds: int = 0,
+    target_date: "datetime.date | None" = None,
 ) -> datetime:
     """
     Returns a randomized send datetime:
@@ -28,9 +29,9 @@ def get_randomized_send_time(
     - With 1–8 minute jitter between sends
     - Always in the future relative to `base`
     """
-    if str(settings.environment).lower() == "development" and jitter_add_seconds <= 3600:
-        # In development, send the first email immediately (within 10s) for testing
-        return datetime.utcnow() + timedelta(seconds=10)
+    if str(settings.environment).lower() == "development":
+        # In development, bypass business hours but STILL respect the 15-minute gap
+        return datetime.utcnow() + timedelta(seconds=10 + jitter_add_seconds)
     base = base or datetime.utcnow()
     tz_name = TIMEZONE_BY_COUNTRY.get(prospect_country, "Asia/Kolkata")
     tz = pytz.timezone(tz_name)
@@ -42,9 +43,13 @@ def get_randomized_send_time(
 
     # Start from tomorrow if the chosen time already passed today
     local_now = datetime.now(tz)
-    candidate = local_now.replace(hour=hour, minute=minute, second=second, microsecond=0)
-    if candidate <= local_now:
-        candidate += timedelta(days=1)
+    
+    if target_date:
+        candidate = tz.localize(datetime.combine(target_date, datetime.min.time())).replace(hour=hour, minute=minute, second=second)
+    else:
+        candidate = local_now.replace(hour=hour, minute=minute, second=second, microsecond=0)
+        if candidate <= local_now:
+            candidate += timedelta(days=1)
 
     # Skip weekends
     while candidate.weekday() >= 5:  # 5=Sat, 6=Sun

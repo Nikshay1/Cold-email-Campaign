@@ -52,11 +52,7 @@ def _build_message(
         msg["Reply-To"] = reply_to
 
     # Plain text body (primary)
-    footer = f"\n\n--\n{sender_name}\n{settings.company_name}\n{settings.company_address}"
-    if unsubscribe_url:
-        footer += f"\n\nDon't want to hear from us? Unsubscribe: {unsubscribe_url}"
-
-    full_body = body + footer
+    full_body = body
     msg.attach(MIMEText(full_body, "plain"))
 
     # Minimal HTML version with tracking pixel

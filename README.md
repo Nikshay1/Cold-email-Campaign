@@ -9,8 +9,10 @@
 - **Upload Leads:** Drop in a CSV file with your prospects' names and emails.
 - **Connect Gmails:** Link as many Gmail or Google Workspace accounts as you want.
 - **Write Templates:** Draft a single email using tags like `[NAME]` or `[COMPANY]` and the system will automatically personalize every single email.
-- **Inbox Rotation (Round-Robin):** If you upload 1,000 leads and select 4 sender inboxes, the system will perfectly divide the work, sending exactly 250 emails from each account to keep your sending limits perfectly safe.
-- **Read Replies:** The system automatically checks your connected inboxes and pulls all replies perfectly into a centralized dashboard!
+- **Smart Rate Limiting & Inbox Rotation:** Distributes your emails utilizing a strict **20 emails/day** limit per inbox. Emails are intelligently spaced out with a **5-minute gap** to mimic human sending. If you blast 1,000 emails, it magically shifts the overflow into the following days automatically, while smartly skipping weekends!
+- **Read Replies:** The system automatically checks your connected inboxes and pulls all replies perfectly into a centralized dashboard.
+- **Follow-Up CSV Export:** Pulls a realtime spreadsheet of leads who were emailed 3+ days ago and never replied, perfect for sequence follow-ups.
+- **Optional AI Reply Classification:** Paste your Groq API Key and select your preferred Groq Model in the Settings dashboard. The AI will strictly *only* read incoming replies, instantly classifying their intent (Interested, Not Now, etc.) and auto-generating smart talking points for you, while keeping your entire sending engine 100% templated and AI-free!
 
 ---
 
@@ -25,6 +27,8 @@ You only need to do this once to boot up the system on your computer.
    docker compose up --build -d
    ```
 4. Wait a minute for it to finish booting up.
+
+*(Note: If you ever need to completely rebuild from scratch or wipe your data, run `docker compose down -v` followed by `docker compose build --no-cache` and `docker compose up -d`)*
 
 Your application is now live! 
 👉 **Open your browser and jump into the dashboard:** [http://localhost:3000](http://localhost:3000)

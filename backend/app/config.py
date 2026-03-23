@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     sendgrid_api_key: str = ""
 
     # Sending defaults
-    max_sends_per_inbox_per_day: int = 40
+    max_sends_per_inbox_per_day: int = 30
     warmup_ratio: float = 0.35
     send_hour_min: int = 7
     send_hour_max: int = 17

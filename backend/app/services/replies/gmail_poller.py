@@ -110,13 +110,9 @@ async def _process_message(msg: dict, inbox: Inbox, db: AsyncSession, service):
 
     logger.info(f"🔔 Reply detected from {from_email} on thread {thread_id}")
 
-    # No AI classification — default to interested so the user reviews it
-    classification_result = {
-        "classification": "INTERESTED", 
-        "confidence": 1.0,
-        "summary": "Manual review required. AI engine disabled.",
-        "talking_points": []
-    }
+    # Ask AI to classify
+    from app.services.ai.classifier import classify_reply
+    classification_result = await classify_reply(reply_text, db)
 
     # Pause sequence for this lead
     await _pause_lead_sequence(email_record.lead_id, db)

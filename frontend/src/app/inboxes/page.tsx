@@ -53,7 +53,7 @@ export default function InboxesPage() {
           email,
           display_name: displayName,
           domain,
-          daily_limit: 40 // Default warmup
+          daily_limit: 30 // Safe cold limit
         })
       })
 

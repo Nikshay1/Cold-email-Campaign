@@ -30,6 +30,7 @@ class LeadStatus(str, PyEnum):
     ENRICHED = "enriched"
     QUEUED = "queued"
     ACTIVE = "active"
+    CONTACTED = "contacted"
     REPLIED = "replied"
     UNSUBSCRIBED = "unsubscribed"
     BOUNCED = "bounced"
@@ -71,10 +72,15 @@ class Lead(Base):
 
     id: Mapped[str] = mapped_column(String(36), primary_key=True, default=gen_uuid)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False, index=True)
-    first_name: Mapped[str] = mapped_column(String(100), nullable=False)
+    full_name: Mapped[Optional[str]] = mapped_column(String(200))
+    first_name: Mapped[Optional[str]] = mapped_column(String(100))
     last_name: Mapped[Optional[str]] = mapped_column(String(100))
     title: Mapped[Optional[str]] = mapped_column(String(200))
     linkedin_url: Mapped[Optional[str]] = mapped_column(String(500))
+
+    # Location & Contact
+    location: Mapped[Optional[str]] = mapped_column(String(200))
+    phone_number: Mapped[Optional[str]] = mapped_column(String(100))
 
     # Company
     company_name: Mapped[Optional[str]] = mapped_column(String(200))
@@ -146,7 +152,7 @@ class Inbox(Base):
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     display_name: Mapped[str] = mapped_column(String(200), nullable=False)
     domain: Mapped[str] = mapped_column(String(200), nullable=False)
-    daily_limit: Mapped[int] = mapped_column(Integer, default=40)
+    daily_limit: Mapped[int] = mapped_column(Integer, default=30)
     health: Mapped[InboxHealth] = mapped_column(Enum(InboxHealth), default=InboxHealth.WARMING)
 
     # Gmail OAuth tokens (stored encrypted in production)

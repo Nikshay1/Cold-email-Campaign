@@ -130,6 +130,7 @@ export default function LeadsPage() {
                 </details>
               )}
             </>
+          )}
         </div>
       )}
 
